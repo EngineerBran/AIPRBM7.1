@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Page with Projects</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .project {
+            flex: 1;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .project-header {
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .project-title {
+            margin: 0;
+        }
+
+        .project-content {
+            display: none;
+        }
+
+        .menu {
+            flex: 0 0 200px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+            .menu h3 {
+                margin-top: 0;
+            }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 5px;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+
+        .pagination a:hover {
+            background-color: #555;
+        }
+
+        .pagination .active {
+            background-color: #555;
+        }
+
+        #projectDescription {
+            text-align: center; /* Center align the project description */
+            margin: 0 auto; /* Center horizontally */
+            max-width: 600px; /* Limit the width to maintain readability */
+        }
+
+        @media only screen and (max-width: 768px) {
+            main {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .project {
+                width: 100%;
+            }
+
+            .menu {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Project Page</h1>
+        <div class="description">
+            <p>This website shows all the projects I have completed so far in my Advanced Internet Programming class. It contains three projects which will execute all their tasks as I was instructed by the professor. Please click on each project below to expand it.</p>
+        </div>
+    </header>
+
+    <main>
+        <div class="menu">
+            <h3>Menu</h3>
+            <ul>
+                <li><button id="project1" class="project-button">Project 1</button></li>
+                <li><button id="project2" class="project-button">Project 2</button></li>
+                <li><button id="project3" class="project-button">Project 3</button></li>
+            </ul>
+        </div>
+
+        <div class="description" id="projectDescription">
+            <!-- Project description will be fetched here -->
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var slideshowTimeout;
+
+        function fetchProjectContent(projectId) {
+            // Clear the timeout for the slideshow
+            clearTimeout(slideshowTimeout);
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("projectDescription").innerHTML = this.responseText;
+                    // Execute script blocks within the fetched content
+                    var scripts = document.getElementById("projectDescription").getElementsByTagName("script");
+                    for (var i = 0; i < scripts.length; i++) {
+                        var scriptElement = document.createElement("script");
+                        scriptElement.textContent = scripts[i].textContent;
+                        document.head.appendChild(scriptElement);
+                    }
+                }
+            };
+            xhttp.open("GET", projectId + ".html", true);
+            xhttp.send();
+        }
+
+        function showProjectContent(description, execution) {
+            document.getElementById("projectDescription").innerHTML = description;
+        }
+
+        // Simulated inline content for projects
+        var projectContents = {
+            "Project1": {
+                "description": "<h2>Project 1 Description</h2><p>In project 1, the script which I generated creates a basic user information form that allows users to input their name, surname, age, sex, and select hobbies. When the user submits the form, their input is gathered, formatted into a message, and displayed in an alert box.</p>",
+            },
+            "Project2": {
+                "description": "<h2>Project 2 Description</h2><p>In project 2, the HTML structure, CSS styling, and JavaScript function work together to create a user information form. The form elements are arranged in a table-like structure using <div> elements styled with CSS. The JavaScript function handles the form data retrieval and presentation to the user in an alert window when the OK button is clicked.</p>",
+            },
+            "Project3": {
+                "description": "<h2>Project 3 Description</h2><p>In project 3, the script generates a list of 500 random numbers between 1 and 1000, sorts them using the bubble sort and quick-sort algorithms, and then displays the first 30 and last 30 numbers from the sorted list, showing us the calculated time taken to execute the bubble and quick-sort algorithms.</p>",
+            }
+        };
+
+        // Initialize with the first project
+        showProjectContent(projectContents["Project1"].description, projectContents["Project1"].execution);
+
+        // Function to handle pagination
+        function paginateProjects(pageNumber) {
+            var projectId = "Project" + pageNumber;
+            showProjectContent(projectContents[projectId].description, projectContents[projectId].execution);
+        }
+
+        // Generate pagination links
+        var paginationHTML = "";
+        for (var i = 1; i <= 3; i++) {
+            paginationHTML += '<a href="#" onclick="paginateProjects(' + i + ')">' + i + '</a>';
+        }
+        $(".pagination").html(paginationHTML);
+
+        // Attach event handlers using jQuery
+        $(document).ready(function() {
+            $(".project-button").hover(
+                function() {
+                    $(this).css("background-color", "blue");
+                },
+                function() {
+                    $(this).css("background-color", "#333");
+                }
+            );
+
+            $("#project1").click(function() {
+                fetchProjectContent("Project1");
+            });
+
+            $("#project2").click(function() {
+                fetchProjectContent("Project2");
+            });
+
+            $("#project3").click(function() {
+                fetchProjectContent("Project3");
+            });
+        });
+
+        var currentProjectIndex = 0;
+        var projectIds = Object.keys(projectContents);
+        var projectDescriptionElement = document.getElementById("projectDescription");
+
+        function showNextProjectDescription() {
+            projectDescriptionElement.innerHTML = projectContents[projectIds[currentProjectIndex]].description;
+            currentProjectIndex = (currentProjectIndex + 1) % projectIds.length;
+            slideshowTimeout = setTimeout(showNextProjectDescription, 2000); // Change 2000 to desired interval in milliseconds
+        }
+
+        showNextProjectDescription();
+    </script>
+
+</body>
+</html>
